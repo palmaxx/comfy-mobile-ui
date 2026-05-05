@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Brush, Check, Eraser, Redo2, RotateCcw, Undo2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import UPNG from 'upng-js';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 
@@ -632,11 +633,8 @@ export const ImageMaskEditorModal: React.FC<ImageMaskEditorModalProps> = ({
       outputData[i + 3] = maskData[i + 3] > 16 ? 0 : 255;
     }
 
-    exportCtx.putImageData(outputImageData, 0, 0);
-
-    const blob = await new Promise<Blob | null>((resolve) => {
-      exportCanvas.toBlob((result) => resolve(result), 'image/png');
-    });
+        const pngBuffer = UPNG.encode([outputData.buffer], exportWidth, exportHeight, 0);
+    const blob = new Blob([pngBuffer], { type: 'image/png' });
 
     if (!blob) {
       throw new Error(t('mask.errors.failedToExport'));
